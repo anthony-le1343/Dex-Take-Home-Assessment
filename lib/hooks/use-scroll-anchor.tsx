@@ -18,24 +18,19 @@ export const useScrollAnchor = () => {
   }, [])
 
   useEffect(() => {
-    if (messagesRef.current) {
-      if (isAtBottom && !isVisible) {
-        messagesRef.current.scrollIntoView({
-          block: 'end'
-        })
-      }
+    if (messagesRef.current && isAtBottom && !isVisible) {
+      scrollToBottom()
     }
-  }, [isAtBottom, isVisible])
+  }, [isAtBottom, isVisible, scrollToBottom])
 
   useEffect(() => {
     const { current } = scrollRef
 
     if (current) {
-      const handleScroll = (event: Event) => {
-        const target = event.target as HTMLDivElement
+      const handleScroll = () => {
         const offset = 25
         const isAtBottom =
-          target.scrollTop + target.clientHeight >= target.scrollHeight - offset
+          current.scrollTop + current.clientHeight >= current.scrollHeight - offset
 
         setIsAtBottom(isAtBottom)
       }
@@ -51,29 +46,26 @@ export const useScrollAnchor = () => {
   }, [])
 
   useEffect(() => {
+    const handleVisibilityChange = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach(entry => {
+        setIsVisible(entry.isIntersecting)
+      })
+    }
+
+    const observer = new IntersectionObserver(handleVisibilityChange, {
+      rootMargin: '0px 0px -150px 0px'
+    })
+
     if (visibilityRef.current) {
-      let observer = new IntersectionObserver(
-        entries => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              setIsVisible(true)
-            } else {
-              setIsVisible(false)
-            }
-          })
-        },
-        {
-          rootMargin: '0px 0px -150px 0px'
-        }
-      )
-
       observer.observe(visibilityRef.current)
+    }
 
-      return () => {
-        observer.disconnect()
+    return () => {
+      if (visibilityRef.current) {
+        observer.unobserve(visibilityRef.current)
       }
     }
-  })
+  }, [])
 
   return {
     messagesRef,

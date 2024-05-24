@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 
 const LOCAL_STORAGE_KEY = 'sidebar'
@@ -10,11 +8,15 @@ interface SidebarContext {
   isLoading: boolean
 }
 
-const SidebarContext = React.createContext<SidebarContext | undefined>(
-  undefined
-)
+const defaultSidebarContext: SidebarContext = {
+  isSidebarOpen: false,
+  toggleSidebar: () => {},
+  isLoading: true
+}
 
-export function useSidebar() {
+const SidebarContext = React.createContext<SidebarContext>(defaultSidebarContext)
+
+export function useSidebarContext() {
   const context = React.useContext(SidebarContext)
   if (!context) {
     throw new Error('useSidebarContext must be used within a SidebarProvider')
@@ -31,11 +33,16 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   const [isLoading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
-    const value = localStorage.getItem(LOCAL_STORAGE_KEY)
-    if (value) {
-      setSidebarOpen(JSON.parse(value))
+    try {
+      const value = localStorage.getItem(LOCAL_STORAGE_KEY)
+      if (value) {
+        setSidebarOpen(JSON.parse(value))
+      }
+    } catch (error) {
+      console.error('Error accessing local storage:', error)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }, [])
 
   const toggleSidebar = () => {
@@ -47,7 +54,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   }
 
   if (isLoading) {
-    return null
+    return null // or loading indicator
   }
 
   return (
