@@ -1,19 +1,30 @@
+import * as React from 'react'
+import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 import { UIState } from '@/lib/chat/actions'
 import { Session } from '@/lib/types'
-import Link from 'next/link'
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
+import { toast } from 'sonner'
 
-export interface ChatList {
+export interface ChatListProps {
   messages: UIState
   session?: Session
   isShared: boolean
+  callFunction: (functionName: string) => void // Function to call Assistants API function
 }
 
-export function ChatList({ messages, session, isShared }: ChatList) {
+export function ChatList({ messages, session, isShared, callFunction }: ChatListProps) {
   if (!messages.length) {
     return null
   }
+
+  const handleFunctionCall = (message: string) => {
+    // Example: Trigger function call if message contains specific keyword
+    if (message.includes('keyword')) {
+      const functionName = 'your_function_name_here';
+      callFunction(functionName);
+    }
+  };
 
   return (
     <div className="relative mx-auto max-w-2xl px-4">
@@ -44,6 +55,7 @@ export function ChatList({ messages, session, isShared }: ChatList) {
       {messages.map((message, index) => (
         <div key={message.id}>
           {message.display}
+          {handleFunctionCall(message.text)} {/* Trigger function call */}
           {index < messages.length - 1 && <Separator className="my-4" />}
         </div>
       ))}

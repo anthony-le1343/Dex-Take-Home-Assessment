@@ -8,9 +8,10 @@ import { useLocalStorage } from '@/lib/hooks/use-local-storage'
 import { useEffect, useState } from 'react'
 import { useUIState, useAIState } from 'ai/rsc'
 import { Message, Session } from '@/lib/types'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useScrollAnchor } from '@/lib/hooks/use-scroll-anchor'
 import { toast } from 'sonner'
+import { useRouter } from 'next/router'
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
@@ -52,6 +53,25 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
       toast.error(`Missing ${key} environment variable!`)
     })
   }, [missingKeys])
+
+  useEffect(() => {
+    if (input.startsWith('/') && aiState.canCallFunction) {
+      const functionName = input.slice(1); // Remove the '/'
+      callFunction(functionName); // Function to call Assistants API function
+      setInput(''); // Clear input after function call
+    }
+  }, [input, aiState.canCallFunction]);
+
+  const callFunction = async (functionName: string) => {
+    try {
+      // Make API call to invoke function using Assistants API
+      // Example: const response = await openai.callFunction({ name: functionName, ... });
+      // Handle the response as needed
+    } catch (error) {
+      console.error('Failed to call function:', error);
+      toast.error('Failed to call function. Please try again.');
+    }
+  };
 
   const { messagesRef, scrollRef, visibilityRef, isAtBottom, scrollToBottom } =
     useScrollAnchor()

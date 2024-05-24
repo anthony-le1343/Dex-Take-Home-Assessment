@@ -1,9 +1,8 @@
-'use client'
-
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
+import { useRouter } from 'next/navigation'
 
-import { useActions, useUIState } from 'ai/rsc'
+import { useActions, useUIState, useEnterSubmit } from 'ai/rsc'
 
 import { UserMessage } from './stocks/message'
 import { type AI } from '@/lib/chat/actions'
@@ -14,56 +13,45 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
 import { nanoid } from 'nanoid'
-import { useRouter } from 'next/navigation'
 
-export function PromptForm({
-  input,
-  setInput
-}: {
-  input: string
-  setInput: (value: string) => void
-}) {
+export function PromptForm() {
   const router = useRouter()
   const { formRef, onKeyDown } = useEnterSubmit()
-  const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const { submitUserMessage } = useActions()
   const [_, setMessages] = useUIState<typeof AI>()
 
+  const [input, setInput] = React.useState('')
+
   React.useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus()
+    if (window.innerWidth < 600) {
+      formRef.current?.blur()
     }
   }, [])
 
   return (
     <form
       ref={formRef}
-      onSubmit={async (e: any) => {
+      onSubmit={async (e) => {
         e.preventDefault()
 
-        // Blur focus on mobile
-        if (window.innerWidth < 600) {
-          e.target['message']?.blur()
-        }
-
         const value = input.trim()
-        setInput('')
         if (!value) return
 
+        setInput('')
+
         // Optimistically add user message UI
-        setMessages(currentMessages => [
+        setMessages((currentMessages) => [
           ...currentMessages,
           {
             id: nanoid(),
-            display: <UserMessage>{value}</UserMessage>
-          }
+            display: <UserMessage>{value}</UserMessage>,
+          },
         ])
 
         // Submit and get response message
         const responseMessage = await submitUserMessage(value)
-        setMessages(currentMessages => [...currentMessages, responseMessage])
+        setMessages((currentMessages) => [...currentMessages, responseMessage])
       }}
     >
       <div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:px-12">
@@ -73,9 +61,7 @@ export function PromptForm({
               variant="outline"
               size="icon"
               className="absolute left-0 top-[14px] size-8 rounded-full bg-background p-0 sm:left-4"
-              onClick={() => {
-                router.push('/new')
-              }}
+              onClick={() => router.push('/new')}
             >
               <IconPlus />
               <span className="sr-only">New Chat</span>
@@ -84,7 +70,6 @@ export function PromptForm({
           <TooltipContent>New Chat</TooltipContent>
         </Tooltip>
         <Textarea
-          ref={inputRef}
           tabIndex={0}
           onKeyDown={onKeyDown}
           placeholder="Send a message."
@@ -96,12 +81,12 @@ export function PromptForm({
           name="message"
           rows={1}
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={(e) => setInput(e.target.value)}
         />
         <div className="absolute right-0 top-[13px] sm:right-4">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button type="submit" size="icon" disabled={input === ''}>
+              <Button type="submit" size="icon" disabled={!input}>
                 <IconArrowElbow />
                 <span className="sr-only">Send message</span>
               </Button>

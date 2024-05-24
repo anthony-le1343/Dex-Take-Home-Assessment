@@ -1,22 +1,31 @@
-'use client'
-
 import * as React from 'react'
-
-import { cn } from '@/lib/utils'
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { IconArrowDown } from '@/components/ui/icons'
+import { toast } from 'sonner'
 
 interface ButtonScrollToBottomProps extends ButtonProps {
   isAtBottom: boolean
   scrollToBottom: () => void
+  callFunction: (functionName: string) => void // Function to call Assistants API function
 }
 
 export function ButtonScrollToBottom({
   className,
   isAtBottom,
   scrollToBottom,
+  callFunction,
   ...props
 }: ButtonScrollToBottomProps) {
+  const handleButtonClick = () => {
+    if (!isAtBottom) {
+      scrollToBottom();
+    } else {
+      // If the user is at the bottom, trigger a function call
+      const functionName = 'your_function_name_here';
+      callFunction(functionName);
+    }
+  };
+
   return (
     <Button
       variant="outline"
@@ -26,7 +35,7 @@ export function ButtonScrollToBottom({
         isAtBottom ? 'opacity-0' : 'opacity-100',
         className
       )}
-      onClick={() => scrollToBottom()}
+      onClick={handleButtonClick}
       {...props}
     >
       <IconArrowDown />

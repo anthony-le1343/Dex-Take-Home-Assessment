@@ -1,26 +1,30 @@
-// Inspired by Chatbot-UI and modified to fit the needs of this project
-// @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatMessage.tsx
-
+import * as React from 'react'
 import { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-
 import { cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { ChatMessageActions } from '@/components/chat-message-actions'
+import { toast } from 'sonner'
 
 export interface ChatMessageProps {
   message: Message
+  callFunction: (functionName: string) => void // Function to call Assistants API function
 }
 
-export function ChatMessage({ message, ...props }: ChatMessageProps) {
+export function ChatMessage({ message, callFunction, ...props }: ChatMessageProps) {
+  const handleFunctionCall = () => {
+    // Example: Trigger function call if message contains specific keyword
+    if (message.content.includes('keyword')) {
+      const functionName = 'your_function_name_here';
+      callFunction(functionName);
+    }
+  };
+
   return (
-    <div
-      className={cn('group relative mb-4 flex items-start md:-ml-12')}
-      {...props}
-    >
+    <div className={cn('group relative mb-4 flex items-start md:-ml-12')} {...props}>
       <div
         className={cn(
           'flex size-8 shrink-0 select-none items-center justify-center rounded-md border shadow',

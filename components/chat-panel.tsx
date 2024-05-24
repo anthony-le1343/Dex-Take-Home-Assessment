@@ -1,10 +1,11 @@
-import * as React from 'react'
+'use client'
 
+import * as React from 'react'
 import { shareChat } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import { PromptForm } from '@/components/prompt-form'
 import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'
-import { IconShare } from '@/components/ui/icons'
+import { IconShare, IconFunctionCall } from '@/components/ui/icons'
 import { FooterText } from '@/components/footer'
 import { ChatShareDialog } from '@/components/chat-share-dialog'
 import { useAIState, useActions, useUIState } from 'ai/rsc'
@@ -19,6 +20,7 @@ export interface ChatPanelProps {
   setInput: (value: string) => void
   isAtBottom: boolean
   scrollToBottom: () => void
+  callFunction: (functionName: string) => void // Function to call Assistants API function
 }
 
 export function ChatPanel({
@@ -27,7 +29,8 @@ export function ChatPanel({
   input,
   setInput,
   isAtBottom,
-  scrollToBottom
+  scrollToBottom,
+  callFunction // Pass callFunction as prop
 }: ChatPanelProps) {
   const [aiState] = useAIState()
   const [messages, setMessages] = useUIState<typeof AI>()
@@ -57,13 +60,17 @@ export function ChatPanel({
     }
   ]
 
+  const handleFunctionCall = () => {
+    const functionName = 'your_function_name_here'; // Replace with your function name
+    callFunction(functionName);
+  };
+
   return (
     <div className="fixed inset-x-0 bottom-0 w-full bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% duration-300 ease-in-out animate-in dark:from-background/10 dark:from-10% dark:to-background/80 peer-[[data-state=open]]:group-[]:lg:pl-[250px] peer-[[data-state=open]]:group-[]:xl:pl-[300px]">
       <ButtonScrollToBottom
         isAtBottom={isAtBottom}
         scrollToBottom={scrollToBottom}
       />
-
       <div className="mx-auto sm:max-w-2xl sm:px-4">
         <div className="mb-4 grid grid-cols-2 gap-2 px-4 sm:px-0">
           {messages.length === 0 &&
@@ -123,6 +130,13 @@ export function ChatPanel({
                       messages: aiState.messages
                     }}
                   />
+                  <Button
+                    variant="outline"
+                    onClick={handleFunctionCall}
+                  >
+                    <IconFunctionCall className="mr-2" />
+                    Call Function
+                  </Button>
                 </>
               ) : null}
             </div>

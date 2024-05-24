@@ -1,5 +1,3 @@
-'use client'
-
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -49,9 +47,9 @@ export function SidebarActions({
               variant="ghost"
               className="size-7 p-0 hover:bg-background"
               onClick={() => setShareDialogOpen(true)}
+              aria-label="Share"
             >
               <IconShare />
-              <span className="sr-only">Share</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>Share chat</TooltipContent>
@@ -63,9 +61,9 @@ export function SidebarActions({
               className="size-7 p-0 hover:bg-background"
               disabled={isRemovePending}
               onClick={() => setDeleteDialogOpen(true)}
+              aria-label="Delete"
             >
               <IconTrash />
-              <span className="sr-only">Delete</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>Delete chat</TooltipContent>

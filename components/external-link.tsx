@@ -1,3 +1,5 @@
+import * as React from 'react'
+
 export function ExternalLink({
   href,
   children
@@ -9,6 +11,7 @@ export function ExternalLink({
     <a
       href={href}
       target="_blank"
+      rel="noopener noreferrer"
       className="inline-flex flex-1 justify-center gap-1 leading-4 hover:underline"
     >
       <span>{children}</span>

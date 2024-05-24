@@ -19,14 +19,17 @@ export function LoginButton({
   ...props
 }: LoginButtonProps) {
   const [isLoading, setIsLoading] = React.useState(false)
+
+  const handleSignIn = () => {
+    setIsLoading(true)
+    // next-auth signIn() function doesn't work yet at Edge Runtime due to usage of BroadcastChannel
+    signIn('github', { callbackUrl: `/` })
+  }
+
   return (
     <Button
       variant="outline"
-      onClick={() => {
-        setIsLoading(true)
-        // next-auth signIn() function doesn't work yet at Edge Runtime due to usage of BroadcastChannel
-        signIn('github', { callbackUrl: `/` })
-      }}
+      onClick={handleSignIn}
       disabled={isLoading}
       className={cn(className)}
       {...props}
