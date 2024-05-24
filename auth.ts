@@ -10,6 +10,7 @@ export const { auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       async authorize(credentials) {
+        // Parse and validate incoming credentials using Zod
         const parsedCredentials = z
           .object({
             email: z.string().email(),
@@ -17,27 +18,30 @@ export const { auth, signIn, signOut } = NextAuth({
           })
           .safeParse(credentials)
 
+        // Check if parsing was successful
         if (parsedCredentials.success) {
           const { email, password } = parsedCredentials.data
+          // Retrieve user data from the database
           const user = await getUser(email)
 
-          if (!user) return null
+          // If user exists, perform password verification
+          if (user) {
+            const encoder = new TextEncoder()
+            const saltedPassword = encoder.encode(password + user.salt)
+            const hashedPasswordBuffer = await crypto.subtle.digest(
+              'SHA-256',
+              saltedPassword
+            )
+            const hashedPassword = getStringFromBuffer(hashedPasswordBuffer)
 
-          const encoder = new TextEncoder()
-          const saltedPassword = encoder.encode(password + user.salt)
-          const hashedPasswordBuffer = await crypto.subtle.digest(
-            'SHA-256',
-            saltedPassword
-          )
-          const hashedPassword = getStringFromBuffer(hashedPasswordBuffer)
-
-          if (hashedPassword === user.password) {
-            return user
-          } else {
-            return null
+            // Compare hashed passwords
+            if (hashedPassword === user.password) {
+              return user // Return user data if password matches
+            }
           }
         }
 
+        // Return null if credentials are invalid or user does not exist
         return null
       }
     })

@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from 'next-auth'
 
-export const authConfig = {
-  secret: process.env.AUTH_SECRET,
+export const authConfig: NextAuthConfig = {
+  secret: process.env.AUTH_SECRET, // Ensure AUTH_SECRET is set in your environment
   pages: {
     signIn: '/login',
     newUser: '/signup'
@@ -12,10 +12,8 @@ export const authConfig = {
       const isOnLoginPage = nextUrl.pathname.startsWith('/login')
       const isOnSignupPage = nextUrl.pathname.startsWith('/signup')
 
-      if (isLoggedIn) {
-        if (isOnLoginPage || isOnSignupPage) {
-          return Response.redirect(new URL('/', nextUrl))
-        }
+      if (isLoggedIn && (isOnLoginPage || isOnSignupPage)) {
+        return { redirect: { destination: '/', permanent: false } }
       }
 
       return true
@@ -38,5 +36,5 @@ export const authConfig = {
       return session
     }
   },
-  providers: []
-} satisfies NextAuthConfig
+  providers: [] // Add authentication providers here if needed
+};
